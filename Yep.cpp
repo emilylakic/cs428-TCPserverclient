@@ -15,9 +15,9 @@ int main(){
 
 	int clientSocket, ret;
 	struct sockaddr_in serverAddr;
-	char buffer[1024] = "Y:Tyler";
+	char buffer[1024] = "Y: Tyler";
 	char currentTime2[84] = "";
-	char str[1024] = "Client Y:Tyler";
+	char str[1024] = "Client Y: Tyler";
 
 	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if(clientSocket < 0){

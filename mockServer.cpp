@@ -12,6 +12,13 @@
 #define PORT 4444
 
 int main() {
+	// stuff
+	char backupBuffer[1024];
+	int messagesReceived = 0;
+	struct timeval first;
+	int firstMilleseconds;
+
+
 	int opt = 1;
 	int sockfd, ret; //master_socket
 	int max_sd; //max_sd
@@ -24,15 +31,14 @@ int main() {
 	socklen_t addr_size;
 	char buffer[1024];
 	char currentTime2[84];
-	char str[100] = "X:Emily received before Y:Tyler";
-	char ybeforex[100] = "Y:Tyler received before X:Emily";
+	char str[100] = "X: Emily received before Y: Tyler";
+	//char ybeforex[100] = "Y:Tyler received before X:Emily";
 	pid_t childpid;
 	fd_set readfds;//look into structure
 	int addrlen; //addrlen
 
 	//initialise all client_socket[] to 0 so not checked
-  for (int i = 0; i < max_clients; i++)
-  {
+  for (int i = 0; i < max_clients; i++){
   	client_socket[i] = 0;
   }
 
@@ -131,18 +137,25 @@ int main() {
 										//inform user of socket number - used in send and receive commands
             printf("Accept connection, socket fd is %d, ip is: %s, port: %d\n" , newSocket , inet_ntoa(serverAddr.sin_addr) , ntohs(serverAddr.sin_port));
 
-						recv(newSocket, buffer, 1024, 0);
-						printf("Client %s\n", buffer);
 
+						//struct timeval now;
+						//gettimeofday(&now, NULL);//seting time value to now
+						//int milli2 = now.tv_usec / 1000;//setting milleseconds of time value
+						//char newerBuffer[80];
+						//strftime(newerBuffer, 80, "%Y-%m-%d %H:%M:%S", localtime(&now.tv_sec));//
+						//char currentTime2[84] = "";
+						//recv(newSocket, buffer, 1024, 0); //THIS ONE
+						//sprintf(currentTime2, "%s:%03d", newerBuffer, milli2);
+						//printf("%s\n", currentTime2);
+						//printf("Client %s\n", buffer); //AND THIS ONE
+
+//THIS IS WHERE X: EMILY USED
 									//send new connection greeting message
-            if( send(newSocket, str, strlen(str), 0) != strlen(str) )
-            {
-                printf("send\n");
+            if( send(newSocket, str, strlen(str), 0) != strlen(str) ){
+                printf("Send\n");
             }
-
-
             printf("Sent acknowledgment to both X and Y\n");
-						printf("-------------------------------------------------------\n");
+						//printf("-------------------------------------------------------\n");
 
 						//add new socket to array of sockets
             for (int i = 0; i < max_clients; i++)
@@ -150,11 +163,45 @@ int main() {
                 //if position is empty
                 if( client_socket[i] == 0 )
                 {
+										printf("Messages Received: %d\n",messagesReceived);
                     client_socket[i] = newSocket;
-                    //printf("Adding to list of sockets as %d\n" , i);
+										struct timeval now;
+										gettimeofday(&now, NULL);//seting time value to now
+										int milli2 = now.tv_usec / 1000;//setting milleseconds of time value
+										char newerBuffer[80];
+										strftime(newerBuffer, 80, "%Y-%m-%d %H:%M:%S", localtime(&now.tv_sec));//
+										char currentTime2[84] = "";
+										recv(newSocket, buffer, 1024, 0);
+										sprintf(currentTime2, "%s:%03d", newerBuffer, milli2);
+										printf("Client %s\n", buffer);
+                  	printf("Adding to list of sockets as %d\n" , i);
+										//printf("currentTime2: %\n",currentTime2);
+										if(messagesReceived>0){
+											//comparison done here
 
+											int comparisonValue = timercmp(&now,&first,>);
+											if (comparisonValue>0){
+												printf("%s > %s\n",buffer,backupBuffer);
+											}else{printf("%s < %s\n",buffer,backupBuffer);}
+
+										}else{
+											//figure out how to copy contents of buffer into backupBuffer
+											strncpy(backupBuffer,buffer,1024);
+											//backupBuffer[0]=buffer;
+											messagesReceived++;
+											first=now;
+											firstMilleseconds=milli2;
+										}
+
+										// if(currentTime2[0] > currentTime2[1]) {
+										// 	printf("Yes\n");
+										// }
+										// else {
+										// 	printf("No\n");
+										// }
                     break;
                 }
+
             }
         }
 
@@ -192,8 +239,6 @@ int main() {
     }
 
   return 0;
-
-
 	//
 	// 		while(1) {
 	// 			//creating timeval structure
