@@ -61,42 +61,20 @@ int main() {
 		printf("Error in binding.\n");
 		exit(1);
 	}
-	//printf("[+]Bind to port %d\n", 4444);
 	int l = strlen(str);
-	//if(listen(sockfd, 10) == 0){ //changed from 10 to 2
-	//	printf("[+]Listening....\n");
-//	} else {
-	//	printf("[-]Error in binding.\n");
-	//}
 	if (listen(sockfd, 10) < 0){
         printf("listen");
         return(1);
   }
 
 	addrlen = sizeof(serverAddr);
-	//printf("Waiting for connections ...\n");
 
 	//STARTING TO LISTEN
 	while(1) {
 		//clear the socket set
 		FD_ZERO(&readfds);
-		//add master socket to set
-		//printf("Sockfd: %d\n",sockfd);
 		FD_SET(sockfd, &readfds);
 		max_sd = sockfd;
-		//creating a new socket
-	//	newSocket = accept(sockfd, (struct sockaddr*)&newAddr, &addr_size);
-	//	if(newSocket < 0){
-	//		exit(1);//if the socket was not opened sucessfully, exit
-	//	}
-	//	printf("Connection accepted from %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));//print out where connection is from
-
-		// possibly forking?
-	//	if((childpid = fork()) == 0) {
-	//		close(sockfd);
-
-	//add child sockets to set, LOOK INTO WHAT THIS IS
-	//print("CLIENT SOCKET SIZE: %d",client_socket.le)
 	for (int i = 0 ; i < max_clients ; i++){
 		//socket descriptor
 		sd = client_socket[i];
@@ -114,8 +92,6 @@ int main() {
 		//highest file descriptor number, need it for the select function
 		if(sd > max_sd){max_sd = sd;}
 	}
-			 //wait for an activity on one of the sockets , timeout is NULL ,
-        //so wait indefinitely
         activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
 
         if ((activity < 0) && (errno!=EINTR))
@@ -123,8 +99,6 @@ int main() {
             printf("select error");
         }
 
-				//If something happened on the master socket ,
-				        //then its an incoming connection
 				        if (FD_ISSET(sockfd, &readfds))
 				        {
 				            if ((newSocket = accept(sockfd,
@@ -133,37 +107,11 @@ int main() {
 				                perror("accept");
 				                exit(EXIT_FAILURE);
 				            }
-
-										//inform user of socket number - used in send and receive commands
             printf("Accept connection, socket fd is %d, ip is: %s, port: %d\n" , newSocket , inet_ntoa(serverAddr.sin_addr) , ntohs(serverAddr.sin_port));
 
-
-						//struct timeval now;
-						//gettimeofday(&now, NULL);//seting time value to now
-						//int milli2 = now.tv_usec / 1000;//setting milleseconds of time value
-						//char newerBuffer[80];
-						//strftime(newerBuffer, 80, "%Y-%m-%d %H:%M:%S", localtime(&now.tv_sec));//
-						//char currentTime2[84] = "";
-						//recv(newSocket, buffer, 1024, 0); //THIS ONE
-						//sprintf(currentTime2, "%s:%03d", newerBuffer, milli2);
-						//printf("%s\n", currentTime2);
-						//printf("Client %s\n", buffer); //AND THIS ONE
-
-//THIS IS WHERE X: EMILY USED
-									//send new connection greeting message
-            if( send(newSocket, str, strlen(str), 0) != strlen(str) ){
-                printf("Send\n");
-            }
-            printf("Sent acknowledgment to both X and Y\n");
-						//printf("-------------------------------------------------------\n");
-
-						//add new socket to array of sockets
-            for (int i = 0; i < max_clients; i++)
-            {
+            for (int i = 0; i < max_clients; i++) {
                 //if position is empty
-                if( client_socket[i] == 0 )
-                {
-										printf("Messages Received: %d\n",messagesReceived);
+                if( client_socket[i] == 0 ) {
                     client_socket[i] = newSocket;
 										struct timeval now;
 										gettimeofday(&now, NULL);//seting time value to now
@@ -174,15 +122,24 @@ int main() {
 										recv(newSocket, buffer, 1024, 0);
 										sprintf(currentTime2, "%s:%03d", newerBuffer, milli2);
 										printf("Client %s\n", buffer);
-                  	printf("Adding to list of sockets as %d\n" , i);
+                  	//printf("Adding to list of sockets as %d\n" , i);
 										//printf("currentTime2: %\n",currentTime2);
 										if(messagesReceived>0){
 											//comparison done here
-
+											char blank[100];
 											int comparisonValue = timercmp(&now,&first,>);
 											if (comparisonValue>0){
-												printf("%s > %s\n",buffer,backupBuffer);
-											}else{printf("%s < %s\n",buffer,backupBuffer);}
+												sprintf(blank,"%s recieved before %s",backupBuffer,buffer);
+											}else{
+												sprintf(blank,"%s received before %s",buffer,backupBuffer);
+											}
+											//printf("Value of blank: %s\n",blank);
+											strncpy(str,blank,100);
+											//printf("Value of str after copy(ready to send): %s\n",str);
+											if( send(newSocket, str, strlen(str), 0) != strlen(str) ){
+					                printf("Send\n");
+					            }
+					            printf("Sent acknowledgment to both X and Y\n");
 
 										}else{
 											//figure out how to copy contents of buffer into backupBuffer
@@ -192,16 +149,8 @@ int main() {
 											first=now;
 											firstMilleseconds=milli2;
 										}
-
-										// if(currentTime2[0] > currentTime2[1]) {
-										// 	printf("Yes\n");
-										// }
-										// else {
-										// 	printf("No\n");
-										// }
                     break;
                 }
-
             }
         }
 
@@ -239,45 +188,4 @@ int main() {
     }
 
   return 0;
-	//
-	// 		while(1) {
-	// 			//creating timeval structure
-	// 			struct timeval now;
-	// 			gettimeofday(&now, NULL);//seting time value to now
-	// 			int milli2 = now.tv_usec / 1000;//setting milleseconds of time value
-	// 			char newerBuffer[80];
-	// 			strftime(newerBuffer, 80, "%Y-%m-%d %H:%M:%S", localtime(&now.tv_sec));//
-	// 			char currentTime2[84] = "";
-	// 			recv(newSocket, buffer, 1024, 0);
-	// 			sprintf(currentTime2, "%s:%03d", newerBuffer, milli2);
-	// 			//recv(newSocket, currentTime2, 1024, 0);
-	// 			if(strcmp(buffer, ":exit") == 0) {
-	// 				printf("Disconnected from %s:%d\n", inet_ntoa(newAddr.sin_addr), ntohs(newAddr.sin_port));
-	// 				//possibly return 1; here
-	// 				break;
-	// 			} else {
-	// 				send(newSocket, currentTime2, strlen(currentTime2), 0);
-	// 				printf("Client: %s\n", buffer); //this is where Client: is posted at server
-	// 				//printf("Time Received: %s\n", currentTime2); //this is where Client: is posted at server
-	// 				//printf("Message was received at: %s\n", currentTime2);
-	// 				//printf("Who printed first? %s\n", currentTime2);
-	// 				send(newSocket, buffer, strlen(buffer), 0);
-	// 				//send(newSocket, str, strlen(str), 0);
-	// 				ret = read(newSocket, str, l); //this must b after send
-	// 				bzero(buffer, sizeof(buffer));
-	// 				//bzero(currentTime2, sizeof(currentTime2));
-	// 			}
-	// 			// close(newSocket);
-	// 			// messagesReceived++;
-	// 			// printf("Messages Received: %d\n",messagesReceived);
-	// 			// //close(newSocket);
-	// 			// while(1) {
-	// 			// 	//printf("Message was received at: %s\n", currentTime2);
-	// 			//
-	// 			// }
-	// 		}
-	// 	//}
-	// }
-	// close(newSocket);
-	// return 0;
 }
