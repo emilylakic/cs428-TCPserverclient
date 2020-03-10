@@ -44,8 +44,12 @@ int main(){
 			printf("Sent = %s\n", str);
 			//printf("%s:%03d\n", newerBuffer, milli2);
 		}
-		recv(clientSocket, currentTime2, 84, 0);
-		printf("%s\n", currentTime2);
+		if(recv(clientSocket, currentTime2, 84, 0)){
+			printf("%s\n", currentTime2);
+			return 0;
+		}
+
+
 	//char a = currentTime2[0];
 	//	char b = currentTime2[1];
 	//	if(a > b) {
@@ -61,7 +65,7 @@ int main(){
 		}
 
 		if(recv(clientSocket, buffer, 1024, 0) < 0){
-			printf("[-]Error in receiving data.\n");
+			//printf("[-]Error in receiving data.\n");
 		} else {
 			//printf("Server: \t%s\n", buffer);
 		}

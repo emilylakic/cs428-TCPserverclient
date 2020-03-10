@@ -17,8 +17,7 @@ int main() {
 	int messagesReceived = 0;
 	struct timeval first;
 	int firstMilleseconds;
-
-
+	int firstFd;
 	int opt = 1;
 	int sockfd, ret; //master_socket
 	int max_sd; //max_sd
@@ -32,7 +31,6 @@ int main() {
 	char buffer[1024];
 	char currentTime2[84];
 	char str[100] = "X: Emily received before Y: Tyler";
-	//char ybeforex[100] = "Y:Tyler received before X:Emily";
 	pid_t childpid;
 	fd_set readfds;//look into structure
 	int addrlen; //addrlen
@@ -75,23 +73,17 @@ int main() {
 		FD_ZERO(&readfds);
 		FD_SET(sockfd, &readfds);
 		max_sd = sockfd;
-	for (int i = 0 ; i < max_clients ; i++){
+		for (int i = 0 ; i < max_clients ; i++){
 		//socket descriptor
 		sd = client_socket[i];
-		//printf("I: %d\n",i);
-		//printf("CLIENT SOCKET: %d\n",client_socket[i]);
 		//if valid socket descriptor then add to read list
 		if(sd > 0){
-			//sd = i;
-			//printf("sd: %d\n",sd);
 			FD_SET( sd , &readfds);
-			//printf("After Set\n");
 		}
-		//printf("Valid socket descriptor\n");
 
 		//highest file descriptor number, need it for the select function
 		if(sd > max_sd){max_sd = sd;}
-	}
+		}
         activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
 
         if ((activity < 0) && (errno!=EINTR))
@@ -122,8 +114,7 @@ int main() {
 										recv(newSocket, buffer, 1024, 0);
 										sprintf(currentTime2, "%s:%03d", newerBuffer, milli2);
 										printf("Client %s\n", buffer);
-                  	//printf("Adding to list of sockets as %d\n" , i);
-										//printf("currentTime2: %\n",currentTime2);
+										//printf("SD: %d\n",sd);
 										if(messagesReceived>0){
 											//comparison done here
 											char blank[100];
@@ -136,18 +127,42 @@ int main() {
 											//printf("Value of blank: %s\n",blank);
 											strncpy(str,blank,100);
 											//printf("Value of str after copy(ready to send): %s\n",str);
+
+
+											//--------Playing with this shit to next line-------------------
+
+
 											if( send(newSocket, str, strlen(str), 0) != strlen(str) ){
 					                printf("Send\n");
 					            }
-					            printf("Sent acknowledgment to both X and Y\n");
+											//printf("SENT THE FIRST MESSAGE\n");
+											//printf("SOCKFD: %d\n",sockfd);
+
+											// if ((newSocket = accept(sockfd,(struct sockaddr *)&serverAddr, (socklen_t*)&addrlen))<0){
+					            //     perror("accept");
+					            //     exit(EXIT_FAILURE);
+					            // }else{
+											// 	printf("Socket Created!\n");
+											// }
+
+	            				//printf("Accept connection, socket fd is %d, ip is: %s, port: %d\n" , newSocket , inet_ntoa(serverAddr.sin_addr) , ntohs(serverAddr.sin_port));
+
+											send(firstFd, str, strlen(str), 0);
+									    //--------------------------------------------------------------
+											printf("Sent acknowledgment to both X and Y\n");
+											//close(firstFd);
+											//close(sd);
+											//close(sockfd);
+											//close(newSocket);
+											return 0;
 
 										}else{
-											//figure out how to copy contents of buffer into backupBuffer
 											strncpy(backupBuffer,buffer,1024);
-											//backupBuffer[0]=buffer;
 											messagesReceived++;
 											first=now;
 											firstMilleseconds=milli2;
+											firstFd=newSocket;
+											//printf("firstFd: %d\n",firstFd);
 										}
                     break;
                 }
@@ -157,14 +172,11 @@ int main() {
 				//else its some IO operation on some other socket
         for (int i = 0; i < max_clients; i++){
             sd = client_socket[i];
-						//printf("ABOUT TO CHECK THE ISSET\n");
             if (FD_ISSET( sd , &readfds)){
-								//printf("IN THE ISSET CONDITIONAL\n");
                 //Check if it was for closing , and also read the
                 //incoming message
                 if ((valread = read( sd , buffer, 1024)) == 0)
                 {
-                    //Somebody disconnected , get his details and print
                     getpeername(sd , (struct sockaddr*)&serverAddr , \
                         (socklen_t*)&addrlen);
                     printf("Host disconnected , ip %s , port %d \n" ,
@@ -181,7 +193,7 @@ int main() {
                     //set the string terminating NULL byte on the end
                     //of the data read
                     buffer[valread] = '\0';
-                    send(sd , buffer , strlen(buffer) , 0 );
+                    send(sd , buffer , strlen(buffer) , 0 );//maybe comment?
                 }
             }
         }

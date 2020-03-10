@@ -44,9 +44,11 @@ int main(){
 			printf("Sent = %s\n", str);
 			//printf(currentTime2, "%s:%03d\n", newerBuffer, milli2);
 		}
-		recv(clientSocket, currentTime2, 84, 0);
-		printf("%s\n", currentTime2);
-
+		if(recv(clientSocket, currentTime2, 84, 0)){
+			printf("%s\n", currentTime2);
+			return 0;
+		}
+		
 		if(strcmp(buffer, ":exit") == 0) {
 			close(clientSocket);
 			printf("[-]Disconnected from server.\n");
@@ -54,7 +56,7 @@ int main(){
 		}
 
 		if(recv(clientSocket, buffer, 1024, 0) < 0) {
-			printf("[-]Error in receiving data.\n");
+			//printf("[-]Error in receiving data.\n");
 		}else{
 			//printf("Server: \t%s\n", buffer);
 		}
