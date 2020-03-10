@@ -41,14 +41,14 @@ int main(){
 	while(1) {
 		if(send(clientSocket, buffer, strlen(buffer), 0)) {
 			//printf("Server: %s\n", buffer);
-			printf("Sent = %s\n", str);
+			printf("Message Sent = %s\n", str);
 			//printf(currentTime2, "%s:%03d\n", newerBuffer, milli2);
 		}
 		if(recv(clientSocket, currentTime2, 84, 0)){
 			printf("%s\n", currentTime2);
 			return 0;
 		}
-		
+
 		if(strcmp(buffer, ":exit") == 0) {
 			close(clientSocket);
 			printf("[-]Disconnected from server.\n");

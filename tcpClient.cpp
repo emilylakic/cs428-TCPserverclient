@@ -41,7 +41,7 @@ int main(){
 	while(1) {
 		if(send(clientSocket, buffer, strlen(buffer), 0)) {
 			//printf("Server: %s\n", buffer);
-			printf("Sent = %s\n", str);
+			printf("Message Sent = %s\n", str);
 			//printf("%s:%03d\n", newerBuffer, milli2);
 		}
 		if(recv(clientSocket, currentTime2, 84, 0)){

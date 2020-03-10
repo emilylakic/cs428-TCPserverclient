@@ -99,7 +99,7 @@ int main() {
 				                perror("accept");
 				                exit(EXIT_FAILURE);
 				            }
-            printf("Accept connection, socket fd is %d, ip is: %s, port: %d\n" , newSocket , inet_ntoa(serverAddr.sin_addr) , ntohs(serverAddr.sin_port));
+            printf("Accepted Connection. Socket FD: %d, IP Address: %s, Port: %d\n" , newSocket , inet_ntoa(serverAddr.sin_addr) , ntohs(serverAddr.sin_port));
 
             for (int i = 0; i < max_clients; i++) {
                 //if position is empty
