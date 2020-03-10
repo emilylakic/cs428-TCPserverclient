@@ -24,7 +24,8 @@ int main() {
 	socklen_t addr_size;
 	char buffer[1024];
 	char currentTime2[84];
-	char str[100] = "Tester";
+	char str[100] = "X:Emily received before Y:Tyler";
+	char ybeforex[100] = "Y:Tyler received before X:Emily";
 	pid_t childpid;
 	fd_set readfds;//look into structure
 	int addrlen; //addrlen
@@ -42,7 +43,7 @@ int main() {
 		printf("Socket Failed.\n");
 		exit(1);
 	}
-	printf("Server Socket is created: %d\n",sockfd);
+	//printf("Server Socket is created: %d\n",sockfd);
 	//initializing server information
 	memset(&serverAddr, '\0', sizeof(serverAddr));
 	serverAddr.sin_family = AF_INET;
@@ -54,7 +55,7 @@ int main() {
 		printf("Error in binding.\n");
 		exit(1);
 	}
-	printf("[+]Bind to port %d\n", 4444);
+	//printf("[+]Bind to port %d\n", 4444);
 	int l = strlen(str);
 	//if(listen(sockfd, 10) == 0){ //changed from 10 to 2
 	//	printf("[+]Listening....\n");
@@ -67,7 +68,7 @@ int main() {
   }
 
 	addrlen = sizeof(serverAddr);
-	printf("Waiting for connections ...\n");
+	//printf("Waiting for connections ...\n");
 
 	//STARTING TO LISTEN
 	while(1) {
@@ -128,7 +129,10 @@ int main() {
 				            }
 
 										//inform user of socket number - used in send and receive commands
-            printf("New connection , socket fd is %d , ip is : %s , port : %d\n" , newSocket , inet_ntoa(serverAddr.sin_addr) , ntohs(serverAddr.sin_port));
+            printf("Accept connection, socket fd is %d, ip is: %s, port: %d\n" , newSocket , inet_ntoa(serverAddr.sin_addr) , ntohs(serverAddr.sin_port));
+
+						recv(newSocket, buffer, 1024, 0);
+						printf("Client %s\n", buffer);
 
 									//send new connection greeting message
             if( send(newSocket, str, strlen(str), 0) != strlen(str) )
@@ -137,7 +141,8 @@ int main() {
             }
 
 
-            printf("Welcome message sent successfully\n");
+            printf("Sent acknowledgment to both X and Y\n");
+						printf("-------------------------------------------------------\n");
 
 						//add new socket to array of sockets
             for (int i = 0; i < max_clients; i++)
@@ -146,7 +151,7 @@ int main() {
                 if( client_socket[i] == 0 )
                 {
                     client_socket[i] = newSocket;
-                    printf("Adding to list of sockets as %d\n" , i);
+                    //printf("Adding to list of sockets as %d\n" , i);
 
                     break;
                 }

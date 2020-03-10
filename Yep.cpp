@@ -15,9 +15,9 @@ int main(){
 
 	int clientSocket, ret;
 	struct sockaddr_in serverAddr;
-	char buffer[1024] = "X:Emily";
+	char buffer[1024] = "Y:Tyler";
 	char currentTime2[84] = "";
-	char str[1024] = "Client X:Emily";
+	char str[1024] = "Client Y:Tyler";
 
 	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if(clientSocket < 0){
@@ -42,27 +42,20 @@ int main(){
 		if(send(clientSocket, buffer, strlen(buffer), 0)) {
 			//printf("Server: %s\n", buffer);
 			printf("Sent = %s\n", str);
-			//printf("%s:%03d\n", newerBuffer, milli2);
+			//printf(currentTime2, "%s:%03d\n", newerBuffer, milli2);
 		}
 		recv(clientSocket, currentTime2, 84, 0);
 		printf("%s\n", currentTime2);
-	//char a = currentTime2[0];
-	//	char b = currentTime2[1];
-	//	if(a > b) {
-	//		printf("a won: %c\n", a);
-	//	} else {
-	//	printf("b won: %c\n", b);
-	//}
 
-		if(strcmp(buffer, ":exit") == 0){
+		if(strcmp(buffer, ":exit") == 0) {
 			close(clientSocket);
 			printf("[-]Disconnected from server.\n");
 			exit(1);
 		}
 
-		if(recv(clientSocket, buffer, 1024, 0) < 0){
+		if(recv(clientSocket, buffer, 1024, 0) < 0) {
 			printf("[-]Error in receiving data.\n");
-		} else {
+		}else{
 			//printf("Server: \t%s\n", buffer);
 		}
 	}
